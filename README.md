@@ -4,119 +4,71 @@
 
 # Deep Classification
 
-## updates
-- 27/9/2017: provide [subset of dataset](https://drive.google.com/drive/folders/0B3fKFm-j0RqeWGdXZUNRUkpybU0?usp=sharing), separated into train/test set
-- 27/9/2017: in this homework, we only evaluat the performance of object classification. You can use other label for multi-task learning, etc.
-- 4/10/2017: ~~Due: Oct. 5, 11:59pm.~~ => Due: Oct. 12, 11:59pm.
 ## Brief
-* ***+2 extra credit of the whole semester***
-* Due: <b>Oct. 5</b>, 11:59pm.
+* Due: <b>Jan. 6</b>, 11:59pm.
 * Required files: results/index.md, and code/
-* [Project reference](http://aliensunmin.github.io/project/handcam/)
 
 
 ## Overview
 
-
-Recently, the technological advance of wearable devices has led to significant interests in recognizing human behaviors in daily life (i.e., uninstrumented environment). Among many devices, egocentric camera systems have drawn significant attention, since the camera is aligned with the field-of-view of wearer, it naturally captures what a person sees. These systems have shown great potential in recognizing daily activities(e.g., making meals, watching TV, etc.), estimating hand poses, generating howto videos, etc.
-
-Despite many advantages of egocentric camera systems, there exists two main issues which are much less discussed. Firstly, hand localization is not solved especially for passive camera systems. Even for active camera systems like Kinect, hand localization is challenging when two hands are interacting or a hand is interacting with an object. Secondly, the limited field-of-view of an egocentric camera implies that hands will inevitably move outside the images sometimes.
-     
-HandCam (Fig. 1), a novel wearable camera capturing activities of hands, for recognizing human behaviors. HandCam has two main advantages over egocentric systems : (1) it avoids the need to detect hands and manipulation regions; (2) it observes the activities of hands almost at all time.
+Recently, deep learning achieved impressive performance on classification benchmarks such as [MNIST](http://yann.lecun.com/exdb/mnist/), [Cifar10](https://www.cs.toronto.edu/~kriz/cifar.html), and [ImageNet](http://www.image-net.org/challenges/LSVRC/) challenges. Starting from AlexNet, the network architecture grows deeper and deeper(Inception, VGG16, ResNet, etc.), and many advanced techniques were introduced (relu, batchnorm, skip connection, bottleneck). In this homework, we are going to implement simple classifyer on the Cifar10 dataset, which consists 50000 training and 10000 testing images (32x32 color images) in 10 classes. With many convenient deep learning frameworks ([Tensorflow](https://www.tensorflow.org/), [Pytorch](http://pytorch.org/), [Caffe2](https://caffe2.ai/), and [MXNet](https://mxnet.apache.org/)), implementing deep convolution neural network (CNN) with parallel computing from either CPU or GPU becomes much easier. In this homework, you need to implement a simple data provider for the Cifar10 dataset, a CNN model, and a training and testing process.
      
 ## Requirement   
 
 - Python
 - [TensorFlow](https://github.com/tensorflow/tensorflow)
+- or [Pytorch](https://github.com/pytorch/pytorch)
+- or any other framework that may help you implement your CNN model.
+
+## Details and References
+In this homework, we won't provide any starter codes, but some advices. Typically, your project will have:
+<ul>
+    <li><code><font color="green">dataloader.py</font></code>: Contains the dataloader to load the training or testing image and label pairs from the dataset.</li>
+    <li><code><font color="green">model.py</font></code>: Contains the CNN network used to perform the classification.</li>
+    <li><code><font color="green">train.py</font></code>: Contains the training process including forward, backward, parameter update, saving model, even recording summaries. </li>
+    <li><code><font color="green">test.py</font></code>: Contains the testing process including model restoration, performance evaluation, etc.</li>
+</ul>
+For the beginners to Tensorflow and Pytorch, you may find the examples of some CNN classifyer quite helpful:
+
+- Tensorflow: [MNIST classification](https://www.tensorflow.org/get_started/mnist/pros)
+- Pytorch: [MNIST classification](https://github.com/pytorch/examples/tree/master/mnist)
 
 ## Data
 
 ### Introduction
 
-This is a [dataset](https://drive.google.com/drive/folders/0BwCy2boZhfdBdXdFWnEtNWJYRzQ) recorded by hand camera system.
+The CIFAR-10 dataset consists of 60000 32x32 colour images in 10 classes, with 6000 images per class. There are 50000 training images and 10000 test images. 
+The dataset is divided into five training batches and one test batch, each with 10000 images. The test batch contains exactly 1000 randomly-selected images from each class. The training batches contain the remaining images in random order, but some training batches may contain more images from one class than another. Between them, the training batches contain exactly 5000 images from each class. The python version dataset can be downloaded from the following [link](https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz).
 
-The camera system consist of three wide-angle cameras, two mounted on the left and right wrists to
-capture hands (referred to as HandCam) and one mounted on the head (referred to as HeadCam).
+For simplicity, we also provide the processed training dataset and testing dataset in the following [link]()
 
-The dataset consists of 20 sets of video sequences (i.e., each set includes two HandCams and one
-HeadCam synchronized videos) captured in three scenes: a small office, a mid-size lab, and a large home.)
+### Details of the provided dataset
+After downloading the provided training and testing data from the [link](), you can simply load the data by:
+```python
+import pickle
 
-We want to classify some kinds of hand states including free v.s. active (i.e., hands holding objects or not),
-object categories, and hand gestures. At the same time, a synchronized video has two sequence need to be labeled,
-the left hand states and right hand states.
-
-For each classification task (i.e., free vs. active, object categories, or hand gesture), there are forty
-sequences of data. We split the dataset into two parts, half for training, half for testing. The object instance is totally separated into training and testing.
-
-### Zip files
-
-`frames.zip` contains all the frames sample from the original videos by 6fps.
-
-`labels.zip` conatins the labels for all frames.
-
-FA : free vs. active (only 0/1)
-
-obj: object categories (24 classes, including free)
-
-ges: hand gesture (13 gestures, including free)
-
-
-### Details of obj. and ges.
-
+with open('cifar10_train.pkl', 'rb') as f:
+    train_data = pickle.load(f)
 ```
-Obj = { 'free':0,
-        'computer':1,
-        'cellphone':2,
-        'coin':3,
-        'ruler':4,
-        'thermos-bottle':5,
-        'whiteboard-pen':6,
-        'whiteboard-eraser':7,
-        'pen':8,
-        'cup':9,
-        'remote-control-TV':10,
-        'remote-control-AC':11,
-        'switch':12,
-        'windows':13,
-        'fridge':14,
-        'cupboard':15,
-        'water-tap':16,
-        'toy':17,
-        'kettle':18,
-        'bottle':19,
-        'cookie':20,
-        'book':21,
-        'magnet':22,
-        'lamp-switch':23}
+The train data will be a dictionary containing three types of data with corresponding keys: images, labels, and filenames. For example, train_data['images'][idx]'s label will be train_data['labels'][idx], where idx (0~49999 for training set) is the index of the desired image. Label 0~9 corresponds to airplane, automobile, bird, cat, deer, dog, frog, horse, ship, and truck. 
 
-Ges= {  'free':0,
-        'press'1,
-        'large-diameter':2,
-        'lateral-tripod':3,
-        'parallel-extension':4,
-        'thumb-2-finger':5,
-        'thumb-4-finger':6,
-        'thumb-index-finger':7,
-        'precision-disk':8,
-        'lateral-pinch':9,
-        'tripod':10,
-        'medium-wrap':11,
-        'light-tool':12}
-```
+
 
 ## Writeup
     
-You are required to implement a **deep-learning-based method** to recognize hand states (free vs. active hands, hand gestures, object categories). Moreover, You might need to further take advantage of both HandCam and HeadCam. You will have to compete the performance with your classmates, so try to use as many techniques as possible to improve. **Your score will based on the performance ranking.**
+You are required to implement a **deep-learning-based method** to recognize the class label of images. Note that many factors such as network architecture, learning rate, batch size, optimizer types may influence the final performance of your model. The purpose of this homework is giving the students chances to train a deep CNN model on their own. Therefore, **as long as you can make your own network work on the training and testing process and report the final performance, any suitable network architecture (AlexNet, VGG16, DenseNet...) is OK (We know that the computation budget varies from person to person, and not everyone has a Titan X to play with.)**
+ 
+For this project, and all other projects, you must do a project report in results folder using [Markdown](https://help.github.com/articles/markdown-basics). We provide you with a placeholder [index.md](./results/index.md) document which you can edit. In the report you will describe your algorithm and any decisions you made to write your algorithm a particular way. For example, your code may consist dataloader.py, model.py, train.py, and test.py. You need to briefly discuss the contents of each file with some code highlights. 
+Then, you will describe how to run your code and if your code depended on other packages. You also need to show and discuss the results of your algorithm. **Note that the limitation of your computer(talk about the limitation you encountered such as limited RAM, GPU memory, no GPU available...), model selection, training parameter settings (learning rate, batch size, etc.), training process (loss), testing result (accuracy and confusion matrix) are important parts that required to be included in your report**. Discuss any extra credit you did, and clearly show what contribution it had on the results (e.g. performance with and without each extra credit component).
 
-For this project, and all other projects, you must do a project report in results folder using [Markdown](https://help.github.com/articles/markdown-basics). We provide you with a placeholder [index.md](./results/index.md) document which you can edit. In the report you will describe your algorithm and any decisions you made to write your algorithm a particular way. Then, you will describe how to run your code and if your code depended on other packages. You also need to show and discuss the results of your algorithm. Discuss any extra credit you did, and clearly show what contribution it had on the results (e.g. performance with and without each extra credit component).
-
-You should also include the precision-recall curve of your final classifier and any interesting variants of your algorithm.
 
 ## Rubric
 <ul>
-   <li> 40 pts: According to performance ranking in class </li>
-	<li> 60 pts: Outperform the AlexNet baseline </li>
-   <li> -5*n pts: Lose 5 points for every time (after the first) you do not follow the instructions for the hand in format </li> 
+   <li> 50 pts: Perform training on the cifar10 dataset. </li>
+	<li> 30 pts: Evaluating testing result on the testing set.  </li>
+   <li> 20 pts: Write up reports with Overview, Implementation, Installation, Results(with discussion on the training and testing processes mentioned in Writeup) </li>
+   <li> 10 pts: Extra credit (up to ten points).</li>
+   <li> -5*n pts: Lose 5 points for every time (after the first) you do not follow the instructions for the hand in format </li>
 </ul> 
 
 ## Get start & hand in
@@ -135,5 +87,3 @@ You should also include the precision-recall curve of your final classifier and 
   - Commit and push your local code to your github repo
   - I will clone your repo after the due date
 
-## Credits
-Assignment designed by Cheng-Sheng Chan. Contents in this handout are from <a href="https://drive.google.com/file/d/0BwCy2boZhfdBM0ZDTV9lZW1rZzg/view">Chan et al.</a>.
