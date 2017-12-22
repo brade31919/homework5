@@ -1,5 +1,5 @@
 <center>
-<img src="README_files/overview.png" alt="overview" style="float:middle;">
+<img src="README_files/Overview.png" alt="overview" style="float:middle;">
 </center>
 
 # Deep Classification
@@ -50,7 +50,7 @@ import pickle
 with open('cifar10_train.pkl', 'rb') as f:
     train_data = pickle.load(f)
 ```
-The train data will be a dictionary containing three types of data with corresponding keys: images, labels, and filenames. For example, train_data['images'][idx]'s label will be train_data['labels'][idx], where idx (0~49999 for training set) is the index of the desired image. Label 0~9 corresponds to airplane, automobile, bird, cat, deer, dog, frog, horse, ship, and truck. 
+The train data will be a dictionary containing three types of data with corresponding keys: images, labels, and filenames. For example, <code>train_data['images'][idx]</code>'s label will be <code>train_data['labels'][idx]</code>, where idx (0 to 49999 for training set) is the index of the desired image. Label 0 to 9 corresponds to airplane, automobile, bird, cat, deer, dog, frog, horse, ship, and truck. 
 
 
 
